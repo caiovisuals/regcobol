@@ -2,8 +2,8 @@
 
 COBC      = cobc
 COBFLAGS  = -x -Wall
-SRC       = src/cadastro.cob
-BIN       = bin/cadastro
+SRC       = src/main.cob
+BIN       = bin/records
 
 .PHONY: all build run clean
 
