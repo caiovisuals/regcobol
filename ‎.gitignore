@@ -1,0 +1,6 @@
+# Binarios compilados
+/bin/cadastro
+*.o
+
+# Base de dados gerada em tempo de execucao
+/data/*.dat
