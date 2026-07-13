@@ -5,7 +5,7 @@ COBFLAGS  = -x -Wall
 SRC       = src/main.cob
 BIN       = bin/records
 
-.PHONY: all build run clean
+.PHONY: all build run test clean
 
 all: build
 
@@ -17,6 +17,9 @@ $(BIN): $(SRC)
 
 run: build
 	./$(BIN)
+
+test: build
+	bash tests/run.sh
 
 clean:
 	rm -f $(BIN)

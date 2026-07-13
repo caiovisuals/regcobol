@@ -18,6 +18,14 @@
            05  FILE-CPF      PIC X(11).
 
        WORKING-STORAGE SECTION.
+       78  WS-MAX-REG                VALUE 100.
+
+        01  WS-FS                     PIC XX.
+           88  FS-OK                 VALUE "00".
+           88  FS-EOF                VALUE "10".
+
+       01  WS-COUNT                  PIC 9(4) VALUE 0.
+
        01 WS-NAME.
            05 WS-NAME-TXT   PIC X(30).
        01 WS-AGE            PIC 99.
@@ -109,6 +117,8 @@
                    DISPLAY "  Email: " WS-REC-EMAIL (WS-I)
                    DISPLAY "  CPF  : " WS-REC-CPF   (WS-I)
                END-PERFORM
+               DISPLAY " "
+               DISPLAY "Total: " WS-COUNT " registro(s)."
            END-IF
            PERFORM PAUSE.
        SEARCH-REG.
@@ -131,6 +141,41 @@
            IF NOT-FOUND
                DISPLAY ">> Nenhum registro com esse CPF encontrado."
            END-IF
+           PERFORM PAUSE.
+       UPDATE-REG.
+           DISPLAY " "
+           DISPLAY "=== ATUALIZAR POR CPF ==="
+           DISPLAY "CPF: " WITH NO ADVANCING
+           ACCEPT WS-SEARCH-CPF
+           PERFORM FIND-CPF
+           IF NOT-FOUND
+               DISPLAY ">> Nenhum registro com esse CPF."
+               PERFORM PAUSE
+               EXIT PARAGRAPH
+           END-IF
+
+           DISPLAY ">> Editando: " WS-REC-NAME (WS-TARGET)
+           DISPLAY "(deixe em branco para manter o valor atual)"
+
+           PERFORM READ-NAME
+           IF WS-INPUT-NAME NOT = SPACES
+               MOVE WS-INPUT-NAME TO WS-REC-NAME (WS-TARGET)
+           END-IF
+
+           PERFORM READ-AGE
+           IF WS-INPUT-AGE > 0 AND WS-INPUT-AGE <= 120
+               MOVE WS-INPUT-AGE TO WS-REC-AGE (WS-TARGET)
+           END-IF
+
+           PERFORM READ-EMAIL
+           IF WS-INPUT-EMAIL NOT = SPACES
+                   AND WS-AT-POS > 0 AND WS-DOT-POS > 0
+               MOVE WS-INPUT-EMAIL TO WS-REC-EMAIL (WS-TARGET)
+           END-IF
+
+           PERFORM SAVE-FILE
+           DISPLAY " "
+           DISPLAY ">> Registro atualizado com sucesso!"
            PERFORM PAUSE.
        DELETE-REG.
            DISPLAY " "

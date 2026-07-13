@@ -14,6 +14,7 @@ Sistema de cadastro de pessoas em COBOL, com menu interativo, validação de dad
 ```sh
 make build   # compila para bin/records
 make run     # compila (se necessário) e executa
+make test    # roda a suíte de testes de integração
 make clean   # remove o binário
 ```
 
@@ -33,6 +34,7 @@ A people-registration system written in COBOL, featuring an interactive menu, in
 ```sh
 make build   # compiles to bin/records
 make run     # compiles (if needed) and runs
+make test    # runs the integration test suite
 make clean   # removes the binary
 ```
 
