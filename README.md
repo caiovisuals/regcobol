@@ -1,6 +1,6 @@
 # SISTEMA DE CADASTRO BÁSICO (COBOL) - ᴘᴛ
 
-Sistema de cadastro de pessoas em COBOL, com menu interativo, validação de dados, persistência em arquivo e operações completas de CRUD (Cadastrar, Listar, Buscar e Excluir).
+Sistema de cadastro de pessoas em COBOL, com menu interativo, validação de dados, persistência em arquivo e operações completas de CRUD (Cadastrar, Listar, Buscar e Excluir). O objetivo do projeto é aprender e aperfeiçoar habilidades de engenharia e arquitetura na linguagem.
 
 ### Funcionalidades
 - **Cadastrar** pessoa (nome, idade, e-mail e CPF).
@@ -20,7 +20,7 @@ make clean   # remove o binário
 
 # BASIC REGISTRATION SYSTEM (COBOL) - ᴇɴ
 
-A people-registration system written in COBOL, featuring an interactive menu, input validation, file persistence and full CRUD operations (Create, List, Search and Delete).
+A people-registration system written in COBOL, featuring an interactive menu, input validation, file persistence and full CRUD operations (Create, List, Search and Delete). The goal of the project is to learn and refine engineering and architectural skills within the language.
 
 ### Features
 - **Create** a person (name, age, e-mail and CPF).

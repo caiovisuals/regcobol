@@ -20,11 +20,14 @@
        WORKING-STORAGE SECTION.
        78  WS-MAX-REG                VALUE 100.
 
-        01  WS-FS                     PIC XX.
+       01  WS-FS                     PIC XX.
            88  FS-OK                 VALUE "00".
            88  FS-EOF                VALUE "10".
 
        01  WS-COUNT                  PIC 9(4) VALUE 0.
+       01  WS-I                      PIC 9(4) VALUE 0.
+       01  WS-J                      PIC 9(4) VALUE 0.
+       01  WS-TARGET                 PIC 9(4) VALUE 0.
 
        01 WS-NAME.
            05 WS-NAME-TXT   PIC X(30).
@@ -60,6 +63,7 @@
            DISPLAY " ".
            DISPLAY "CADASTRO FINALIZADO.".
            STOP RUN.
+
        CREATE-REG.
            DISPLAY " "
            DISPLAY "=== CADASTRAR PESSOA ==="
@@ -103,6 +107,7 @@
            DISPLAY " "
            DISPLAY ">> Cadastro realizado com sucesso!"
            PERFORM PAUSE.
+
        LIST-REG.
            DISPLAY " "
            DISPLAY "=== LISTA DE CADASTROS ==="
@@ -121,6 +126,7 @@
                DISPLAY "Total: " WS-COUNT " registro(s)."
            END-IF
            PERFORM PAUSE.
+
        SEARCH-REG.
            DISPLAY " "
            DISPLAY "=== BUSCAR POR CPF ==="
@@ -142,6 +148,7 @@
                DISPLAY ">> Nenhum registro com esse CPF encontrado."
            END-IF
            PERFORM PAUSE.
+       
        UPDATE-REG.
            DISPLAY " "
            DISPLAY "=== ATUALIZAR POR CPF ==="
@@ -177,6 +184,7 @@
            DISPLAY " "
            DISPLAY ">> Registro atualizado com sucesso!"
            PERFORM PAUSE.
+       
        DELETE-REG.
            DISPLAY " "
            DISPLAY "=== EXCLUIR POR CPF ==="
@@ -209,6 +217,7 @@
                DISPLAY ">> Nenhum registro com esse CPF."
            END-IF
            PERFORM PAUSE.
+
        READ-NAME.
            DISPLAY "Digite o nome: " WITH NO ADVANCING
            ACCEPT WS-INPUT-NAME.
@@ -232,6 +241,69 @@
        READ-CPF.
            DISPLAY "Digite o CPF (11 digitos): " WITH NO ADVANCING
            ACCEPT WS-INPUT-CPF.
+       FIND-CPF.
+           SET NOT-FOUND TO TRUE
+           MOVE 0 TO WS-TARGET
+           PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-COUNT
+               IF WS-REC-CPF (WS-I) = WS-SEARCH-CPF
+                   SET FOUND TO TRUE
+                   MOVE WS-I TO WS-TARGET
+               END-IF
+           END-PERFORM.
+       
+       VALIDATE-CPF.
+           SET CPF-INVALID TO TRUE
+           IF WS-SEARCH-CPF IS NOT NUMERIC
+               EXIT PARAGRAPH
+           END-IF
+           MOVE WS-SEARCH-CPF TO WS-CPF-DIGITS
+
+           MOVE 1 TO WS-ALL-SAME
+           PERFORM VARYING WS-K FROM 2 BY 1 UNTIL WS-K > 11
+               IF WS-CPF-D (WS-K) NOT = WS-CPF-D (1)
+                   MOVE 0 TO WS-ALL-SAME
+               END-IF
+           END-PERFORM
+           IF WS-ALL-SAME = 1
+               EXIT PARAGRAPH
+           END-IF
+
+           MOVE 0 TO WS-SUM
+           MOVE 10 TO WS-WEIGHT
+           PERFORM VARYING WS-K FROM 1 BY 1 UNTIL WS-K > 9
+               COMPUTE WS-SUM =
+                   WS-SUM + (WS-CPF-D (WS-K) * WS-WEIGHT)
+               SUBTRACT 1 FROM WS-WEIGHT
+           END-PERFORM
+           COMPUTE WS-MOD = FUNCTION MOD (WS-SUM, 11)
+           IF WS-MOD < 2
+               MOVE 0 TO WS-DV
+           ELSE
+               COMPUTE WS-DV = 11 - WS-MOD
+           END-IF
+           IF WS-DV NOT = WS-CPF-D (10)
+               EXIT PARAGRAPH
+           END-IF
+
+           MOVE 0 TO WS-SUM
+           MOVE 11 TO WS-WEIGHT
+           PERFORM VARYING WS-K FROM 1 BY 1 UNTIL WS-K > 10
+               COMPUTE WS-SUM =
+                   WS-SUM + (WS-CPF-D (WS-K) * WS-WEIGHT)
+               SUBTRACT 1 FROM WS-WEIGHT
+           END-PERFORM
+           COMPUTE WS-MOD = FUNCTION MOD (WS-SUM, 11)
+           IF WS-MOD < 2
+               MOVE 0 TO WS-DV
+           ELSE
+               COMPUTE WS-DV = 11 - WS-MOD
+           END-IF
+           IF WS-DV NOT = WS-CPF-D (11)
+               EXIT PARAGRAPH
+           END-IF
+
+           SET CPF-VALID TO TRUE.
+
        LOAD-FILE.
            MOVE 0 TO WS-COUNT
            OPEN INPUT REG-FILE
@@ -250,16 +322,22 @@
                END-PERFORM
                CLOSE REG-FILE
            END-IF.
+
        SAVE-FILE.
            OPEN OUTPUT REG-FILE
            IF FS-OK
                PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-COUNT
+                   MOVE WS-REC-NAME  (WS-I) TO FILE-NAME
+                   MOVE WS-REC-AGE   (WS-I) TO FILE-AGE
+                   MOVE WS-REC-EMAIL (WS-I) TO FILE-EMAIL
+                   MOVE WS-REC-CPF   (WS-I) TO FILE-CPF
                    WRITE FILE-RECORD
                END-PERFORM
                CLOSE REG-FILE
            ELSE
                DISPLAY ">> Erro ao salvar arquivo (status " WS-FS ")."
            END-IF.
+
        PAUSE.
            DISPLAY " "
            DISPLAY "Pressione ENTER para continuar..."
